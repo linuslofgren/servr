@@ -1,10 +1,12 @@
 package main
 
 import (
-  "net"
+  _ "net"
   _ "os"
+  "io"
   "fmt"
-  _ "net/http"
+  "net/http"
+  "net/url"
   "flag"
 )
 
@@ -21,26 +23,8 @@ func init() {
 }
 
 func main() {
-  conn, err := net.DialUnix(sType, nil,
-    &net.UnixAddr{serversocket, sType})
-  if err != nil {
-    panic(err)
-  }
-
-  // Write the request to the socket
-  _, err = conn.Write([]byte(""/*"calendar:Thim --H:S"*/))
-  if err != nil {
-    panic(err)
-  }
-
-  // Read the response
-  var buf [1024]byte
-   _, err = conn.Read(buf[:]) // Read
-  if err != nil {
-    panic(err)
-  }
-  fmt.Printf("%s\n", string(buf[:]))
-
-  // Close the connection
-  conn.Close()
+  res, _ := http.PostForm("http://127.0.0.1:8080/", url.Values{"user": {"Thim H"}, "password": {"SE"}})
+  buf := make([]byte, 200)
+  io.ReadFull(res.Body, buf)
+  fmt.Printf("%s\n",buf)
 }
